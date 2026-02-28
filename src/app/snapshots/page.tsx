@@ -254,7 +254,7 @@ export default function SnapshotsPage() {
               <TableHead className="w-[160px] text-right border-r border-border/50 h-11 text-[11px] font-bold px-4 text-muted-foreground uppercase tracking-widest">
                 월말 총자산
               </TableHead>
-              <TableHead className="w-[140px] text-right border-r border-border/50 h-11 text-[11px] font-bold px-4 text-muted-foreground uppercase tracking-widest bg-muted/30">
+              <TableHead className="w-[140px] text-right border-r border-border/50 h-11 text-[11px] font-bold px-4 text-muted-foreground uppercase tracking-widest">
                 월간 입출금 (자동)
               </TableHead>
               <TableHead className="w-[140px] text-right border-r border-border/50 h-11 text-[11px] font-bold px-4 text-indigo-500 uppercase tracking-widest">
@@ -269,7 +269,7 @@ export default function SnapshotsPage() {
               <TableHead className="w-[140px] text-right border-r border-border/50 h-11 text-[11px] font-bold px-4 text-blue-500 uppercase tracking-widest">
                 누적 수익금
               </TableHead>
-              <TableHead className="w-[120px] text-right h-11 text-[11px] font-bold px-4 text-indigo-400 uppercase tracking-widest bg-indigo-500/5">
+              <TableHead className="w-[120px] text-right h-11 text-[11px] font-bold px-4 text-indigo-400 uppercase tracking-widest">
                 누적 수익률
               </TableHead>
               <TableHead className="w-14 h-11 px-4"></TableHead>
@@ -311,15 +311,18 @@ export default function SnapshotsPage() {
                   </div>
                 </TableCell>
                 {/* 월간 입출금 - 자동 계산 (읽기 전용) */}
-                <TableCell className="text-right py-2 border-r border-border/50 px-4 bg-muted/20 relative">
+                <TableCell className="text-right py-2 border-r border-border/50 px-4 relative">
                   <div className="flex items-center gap-1 justify-end w-full">
                     <span
-                      className={`font-mono text-sm font-medium ${
-                        s.monthly_in_out >= 0
-                          ? "text-foreground/70"
-                          : "text-red-500"
+                      className={`font-mono text-sm font-bold ${
+                        s.monthly_in_out > 0
+                          ? "text-red-500"
+                          : s.monthly_in_out < 0
+                            ? "text-blue-500"
+                            : "text-foreground/70"
                       }`}
                     >
+                      {s.monthly_in_out > 0 ? "+" : ""}
                       {s.monthly_in_out.toLocaleString()}
                     </span>
                   </div>
@@ -352,7 +355,7 @@ export default function SnapshotsPage() {
                   {s.cum_pnl.toLocaleString()}
                 </TableCell>
                 <TableCell
-                  className={`text-right border-r border-border/50 px-4 font-mono text-sm font-black bg-indigo-500/5 ${
+                  className={`text-right border-r border-border/50 px-4 font-mono text-sm font-black ${
                     s.cum_return >= 0 ? "text-red-500" : "text-blue-500"
                   }`}
                 >

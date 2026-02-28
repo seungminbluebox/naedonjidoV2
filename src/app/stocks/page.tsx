@@ -462,9 +462,15 @@ export default function StocksPage() {
                 현재가
               </TableHead>
               <TableHead className="w-[150px] text-right border-r border-border h-11 text-[11px] font-bold px-4 text-muted-foreground uppercase tracking-widest">
+                투자금 (매수액)
+              </TableHead>
+              <TableHead className="w-[150px] text-right border-r border-border h-11 text-[11px] font-bold px-4 text-muted-foreground uppercase tracking-widest">
                 평가액
               </TableHead>
-              <TableHead className="w-[110px] text-right border-r border-border h-11 text-[11px] font-bold px-4 text-muted-foreground uppercase tracking-widest">
+              <TableHead className="w-[120px] text-right border-r border-border h-11 text-[11px] font-bold px-4 text-muted-foreground uppercase tracking-widest">
+                수익금
+              </TableHead>
+              <TableHead className="w-[100px] text-right border-r border-border h-11 text-[11px] font-bold px-4 text-muted-foreground uppercase tracking-widest">
                 수익률
               </TableHead>
               <TableHead className="w-12 h-11 px-4"></TableHead>
@@ -593,9 +599,28 @@ export default function StocksPage() {
                       ? `${symbol}${currentPrice.toLocaleString()}`
                       : "---"}
                   </TableCell>
+                  <TableCell className="text-right font-mono text-sm border-r border-border px-3 text-muted-foreground bg-muted/5">
+                    {symbol}
+                    {Math.round(costBasis).toLocaleString()}
+                  </TableCell>
                   <TableCell className="text-right font-mono text-sm border-r border-border px-3 font-medium">
                     {hasPrice
                       ? `${symbol}${Math.round(evalAmount).toLocaleString()}`
+                      : "-"}
+                  </TableCell>
+                  <TableCell
+                    className={`text-right font-mono text-sm border-r border-border px-3 font-bold ${
+                      hasPrice
+                        ? evalAmount - costBasis >= 0
+                          ? "text-red-500"
+                          : "text-blue-500"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    {hasPrice
+                      ? `${evalAmount - costBasis >= 0 ? "+" : ""}${symbol}${Math.round(
+                          evalAmount - costBasis,
+                        ).toLocaleString()}`
                       : "-"}
                   </TableCell>
                   <TableCell
@@ -607,7 +632,9 @@ export default function StocksPage() {
                         : "text-muted-foreground"
                     }`}
                   >
-                    {hasPrice ? `${returnRate.toFixed(2)}%` : "-"}
+                    {hasPrice
+                      ? `${returnRate >= 0 ? "+" : ""}${returnRate.toFixed(2)}%`
+                      : "-"}
                   </TableCell>
                   <TableCell className="text-right px-2">
                     <Button
