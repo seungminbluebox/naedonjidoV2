@@ -134,6 +134,7 @@ export default function HomeDashboard() {
   const [yearlyAvgDividendData, setYearlyAvgDividendData] = useState<any[]>([]);
   const [treeData, setTreeData] = useState<any[]>([]);
   const [avgDividend, setAvgDividend] = useState(0);
+  const [totalDividend, setTotalDividend] = useState(0);
 
   const fetchData = async () => {
     const monthlyAssets = await dataService.getMonthlyAssets();
@@ -326,6 +327,7 @@ export default function HomeDashboard() {
       }
 
       setAvgDividend(totalMonths > 0 ? totalUnified / totalMonths : 0);
+      setTotalDividend(totalUnified);
     }
 
     if (stocks) {
@@ -696,10 +698,22 @@ export default function HomeDashboard() {
 
             <Card className="md:col-span-2 border-border shadow-xl shadow-muted/20">
               <CardHeader>
-                <CardTitle>월별 배당금 (전체)</CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  평균: {Math.round(avgDividend).toLocaleString()}원
-                </p>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle>월별 배당금 (전체)</CardTitle>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      평균: {Math.round(avgDividend).toLocaleString()}원
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                      총 누적 배당금
+                    </p>
+                    <p className="text-2xl font-black text-emerald-600 dark:text-emerald-500">
+                      ₩{Math.round(totalDividend).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">

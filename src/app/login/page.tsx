@@ -2,31 +2,21 @@
 
 import { useState } from "react";
 import { auth } from "@/lib/firebase";
-import {
-  GoogleAuthProvider,
-  signInWithPopup,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { LogIn } from "lucide-react";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
 
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({
+      prompt: "select_account",
+    });
     try {
       await signInWithPopup(auth, provider);
       router.push("/");
@@ -35,71 +25,34 @@ export default function LoginPage() {
     }
   };
 
-  const handleEmailLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push("/");
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
-
   return (
-    <div className="flex items-center justify-center min-h-[80vh]">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">
-            내돈지도 v2 로그인
+    <div className="flex items-center justify-center min-h-screen bg-muted/30 p-4">
+      <Card className="w-full max-w-md shadow-2xl border-border">
+        <CardHeader className="text-center pt-10 pb-6">
+          <CardTitle className="text-3xl font-black tracking-tight text-primary">
+            내돈지도 v2
           </CardTitle>
+          <p className="text-muted-foreground mt-2 text-sm font-medium">
+            자산 관리의 시작, 구글 계정으로 간편하게 로그인하세요.
+          </p>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleEmailLogin} className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">이메일</label>
-              <Input
-                type="email"
-                placeholder="name@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+        <CardContent className="px-6 md:px-10 pb-10">
+          {error && (
+            <div className="bg-red-50 text-red-600 p-3 rounded-lg text-xs font-bold mb-6 border border-red-100 italic">
+              오류: {error}
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">비밀번호</label>
-              <Input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            {error && <p className="text-sm text-red-500">{error}</p>}
-            <Button type="submit" className="w-full">
-              로그인
-            </Button>
-          </form>
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                Or continue with
-              </span>
-            </div>
-          </div>
+          )}
           <Button
-            variant="outline"
-            className="w-full"
+            className="w-full h-14 text-lg font-bold flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-all"
             onClick={handleGoogleLogin}
           >
-            <LogIn className="mr-2 h-4 w-4" /> Google 로그인
+            <LogIn className="w-5 h-5" /> Google로 시작하기
           </Button>
+          <p className="text-center text-[11px] text-muted-foreground mt-8 leading-relaxed">
+            로그인 시 서비스 이용약관 및 <br />
+            개인정보 처리방침에 동의하게 됩니다.
+          </p>
         </CardContent>
-        <CardFooter className="text-center text-sm text-muted-foreground">
-          로그인이 필요한 서비스입니다.
-        </CardFooter>
       </Card>
     </div>
   );

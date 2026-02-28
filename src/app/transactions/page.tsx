@@ -77,6 +77,7 @@ export default function TransactionsPage() {
   };
 
   const deleteTransaction = async (id: string) => {
+    if (!confirm("정말로 이 기록을 삭제하시겠습니까?")) return;
     await dataService.deleteDeposit(id);
     fetchTransactions();
   };
@@ -200,6 +201,9 @@ export default function TransactionsPage() {
                   const raw = e.target.value.replace(/[^0-9.-]/g, "");
                   setFormData((p) => ({ ...p, amount: raw }));
                 }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") addTransaction();
+                }}
               />
             </div>
             <div className="flex-[2] min-w-[200px] space-y-1.5">
@@ -213,6 +217,9 @@ export default function TransactionsPage() {
                 onChange={(e) =>
                   setFormData((p) => ({ ...p, note: e.target.value }))
                 }
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") addTransaction();
+                }}
               />
             </div>
             <Button

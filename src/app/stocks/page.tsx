@@ -118,13 +118,13 @@ export default function StocksPage() {
       currency: formData.currency,
       createdAt: Timestamp.now(),
     });
-    setFormData({
+    setFormData((prev) => ({
       ticker: "",
       name: "",
       quantity: "",
       avgPrice: "",
-      currency: "USD",
-    });
+      currency: prev.currency, // Keep the selected currency
+    }));
     fetchStocks();
   };
 
@@ -379,6 +379,9 @@ export default function StocksPage() {
                 type="text"
                 value={formData.quantity}
                 className="font-mono border-border"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") addStock();
+                }}
                 onChange={(e) => {
                   const raw = e.target.value.replace(/[^0-9.]/g, "");
                   // Allow multiple dots but let formatWithCommas handle it if possible,
@@ -398,6 +401,9 @@ export default function StocksPage() {
                 type="text"
                 className="font-mono border-border"
                 value={formData.avgPrice}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") addStock();
+                }}
                 onChange={(e) => {
                   const raw = e.target.value.replace(/[^0-9.]/g, "");
                   setFormData((p) => ({

@@ -77,6 +77,7 @@ export default function DividendsPage() {
   };
 
   const deleteDividend = async (id: string) => {
+    if (!confirm("정말로 이 배당 기록을 삭제하시겠습니까?")) return;
     await dataService.deleteDividend(id);
     fetchData();
   };
