@@ -197,8 +197,8 @@ export default function TransactionsPage() {
                 value={formData.amount}
                 className="bg-background border-border text-right font-mono"
                 onChange={(e) => {
-                  const raw = e.target.value.replace(/[^0-9]/g, "");
-                  setFormData((p) => ({ ...p, amount: formatWithCommas(raw) }));
+                  const raw = e.target.value.replace(/[^0-9.-]/g, "");
+                  setFormData((p) => ({ ...p, amount: raw }));
                 }}
               />
             </div>

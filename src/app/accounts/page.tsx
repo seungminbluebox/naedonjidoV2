@@ -230,8 +230,8 @@ export default function AccountsPage() {
                       }}
                       onInput={(e) => {
                         const target = e.currentTarget;
-                        const raw = target.value.replace(/[^0-9-]/g, "");
-                        target.value = formatWithCommas(raw);
+                        const raw = target.value.replace(/[^0-9.-]/g, "");
+                        target.value = raw;
                       }}
                     />
                     <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/40 group-hover:text-primary/40 transition-colors">

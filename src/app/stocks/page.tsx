@@ -381,9 +381,11 @@ export default function StocksPage() {
                 className="font-mono border-border"
                 onChange={(e) => {
                   const raw = e.target.value.replace(/[^0-9.]/g, "");
+                  // Allow multiple dots but let formatWithCommas handle it if possible,
+                  // or just keep it as raw if we want to allow typing "1.2"
                   setFormData((p) => ({
                     ...p,
-                    quantity: formatWithCommas(raw),
+                    quantity: raw === "." ? "0." : raw,
                   }));
                 }}
               />
@@ -400,7 +402,7 @@ export default function StocksPage() {
                   const raw = e.target.value.replace(/[^0-9.]/g, "");
                   setFormData((p) => ({
                     ...p,
-                    avgPrice: formatWithCommas(raw),
+                    avgPrice: raw === "." ? "0." : raw,
                   }));
                 }}
               />
@@ -528,7 +530,7 @@ export default function StocksPage() {
                       onInput={(e) => {
                         const target = e.currentTarget;
                         const raw = target.value.replace(/[^0-9.]/g, "");
-                        target.value = formatWithCommas(raw);
+                        target.value = raw;
                       }}
                     />
                   </TableCell>
@@ -553,7 +555,7 @@ export default function StocksPage() {
                       onInput={(e) => {
                         const target = e.currentTarget;
                         const raw = target.value.replace(/[^0-9.]/g, "");
-                        target.value = formatWithCommas(raw);
+                        target.value = raw;
                       }}
                     />
                   </TableCell>

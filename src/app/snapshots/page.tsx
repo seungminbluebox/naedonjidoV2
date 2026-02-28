@@ -44,7 +44,6 @@ export default function SnapshotsPage() {
   const [snapshots, setSnapshots] = useState<SnapshotWithLogic[]>([]);
   const [newYM, setNewYM] = useState(format(new Date(), "yyyy-MM"));
   const [newAssets, setNewAssets] = useState("");
-  const [newInOut, setNewInOut] = useState("");
 
   const fetchSnapshots = async () => {
     // 1. Fetch all deposits (fallback logic)
@@ -142,29 +141,27 @@ export default function SnapshotsPage() {
     const currentAssets = monthlyAssetsDoc?.assets || [];
 
     // Check if month already exists
-    const existingIndex = currentAssets.findIndex((a) => a.month === newYM);
-    const updatedAssets = [...currentAssets];
-
-    const assetVal = parseNumber(newAssets);
-    const inOutVal = newInOut ? parseNumber(newInOut) : undefined;
-
-    if (existingIndex > -1) {
-      updatedAssets[existingIndex].asset = assetVal;
-      if (inOutVal !== undefined) updatedAssets[existingIndex].inOut = inOutVal;
-    } else {
-      updatedAssets.push({
-        month: newYM,
-        asset: assetVal,
-        ...(inOutVal !== undefined ? { inOut: inOutVal } : {}),
-      });
+    const isExisting = currentAssets.some((a) => a.month === newYM);
+    if (isExisting) {
+      alert(
+        `${newYM} 데이터가 이미 존재합니다. 기존 데이터를 수정하려면 표에서 직접 입력해 주세요.`,
+      );
+      return;
     }
+
+    const updatedAssets = [...currentAssets];
+    const assetVal = parseNumber(newAssets);
+
+    updatedAssets.push({
+      month: newYM,
+      asset: assetVal,
+    });
 
     // Sort assets by month
     updatedAssets.sort((a, b) => a.month.localeCompare(b.month));
 
     await dataService.updateMonthlyAssets(updatedAssets);
     setNewAssets("");
-    setNewInOut("");
     fetchSnapshots();
   };
 
@@ -228,24 +225,13 @@ export default function SnapshotsPage() {
               className="w-44 h-10 text-right font-mono font-bold border-border bg-muted/30 focus:bg-background h-10"
               value={newAssets}
               onChange={(e) => {
-                const raw = e.target.value.replace(/[^0-9]/g, "");
-                setNewAssets(formatWithCommas(raw));
+                const raw = e.target.value.replace(/[^0-9.]/g, "");
+                setNewAssets(raw);
               }}
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-[11px] font-bold text-muted-foreground flex items-center gap-1 uppercase tracking-wider ml-1">
-              <ArrowLeftRight className="w-3.5 h-3.5 text-indigo-400" /> 월간
-              입출금
-            </label>
-            <Input
-              type="text"
-              placeholder="0"
-              className="w-44 h-10 text-right font-mono border-border bg-muted/30 focus:bg-background"
-              value={newInOut}
-              onChange={(e) => {
-                const raw = e.target.value.replace(/[^0-9-]/g, "");
-                setNewInOut(formatWithCommas(raw));
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  addSnapshot();
+                }
               }}
             />
           </div>
@@ -268,8 +254,8 @@ export default function SnapshotsPage() {
               <TableHead className="w-[160px] text-right border-r border-border/50 h-11 text-[11px] font-bold px-4 text-muted-foreground uppercase tracking-widest">
                 월말 총자산
               </TableHead>
-              <TableHead className="w-[140px] text-right border-r border-border/50 h-11 text-[11px] font-bold px-4 text-muted-foreground uppercase tracking-widest">
-                월간 입출금
+              <TableHead className="w-[140px] text-right border-r border-border/50 h-11 text-[11px] font-bold px-4 text-muted-foreground uppercase tracking-widest bg-muted/30">
+                월간 입출금 (자동)
               </TableHead>
               <TableHead className="w-[140px] text-right border-r border-border/50 h-11 text-[11px] font-bold px-4 text-indigo-500 uppercase tracking-widest">
                 월간 손익
@@ -315,8 +301,8 @@ export default function SnapshotsPage() {
                       }}
                       onInput={(e) => {
                         const target = e.currentTarget;
-                        const raw = target.value.replace(/[^0-9]/g, "");
-                        target.value = formatWithCommas(raw);
+                        const raw = target.value.replace(/[^0-9.]/g, "");
+                        target.value = raw;
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") e.currentTarget.blur();
@@ -324,34 +310,18 @@ export default function SnapshotsPage() {
                     />
                   </div>
                 </TableCell>
-                {/* 월간 입출금 - 수정 가능 */}
-                <TableCell className="text-right py-2 border-r border-border/50 px-4 bg-indigo-50/10 dark:bg-indigo-900/10 relative">
-                  <div className="flex items-center gap-1 justify-end w-full group/input">
-                    <ArrowLeftRight className="w-3.5 h-3.5 text-indigo-400 opacity-0 group-hover/input:opacity-100 transition-all" />
-                    <input
-                      type="text"
-                      className={`bg-transparent border-none text-right outline-none focus:ring-1 focus:ring-indigo-500/30 rounded px-1 font-mono text-sm h-8 flex-1 font-medium ${
+                {/* 월간 입출금 - 자동 계산 (읽기 전용) */}
+                <TableCell className="text-right py-2 border-r border-border/50 px-4 bg-muted/20 relative">
+                  <div className="flex items-center gap-1 justify-end w-full">
+                    <span
+                      className={`font-mono text-sm font-medium ${
                         s.monthly_in_out >= 0
                           ? "text-foreground/70"
                           : "text-red-500"
                       }`}
-                      defaultValue={formatWithCommas(s.monthly_in_out)}
-                      onBlur={async (e) => {
-                        const val = parseNumber(e.target.value);
-                        if (!isNaN(val) && val !== s.monthly_in_out) {
-                          await updateSnapshot(s.month, "inOut", val);
-                        }
-                        e.target.value = formatWithCommas(val);
-                      }}
-                      onInput={(e) => {
-                        const target = e.currentTarget;
-                        const raw = target.value.replace(/[^0-9-]/g, "");
-                        target.value = formatWithCommas(raw);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") e.currentTarget.blur();
-                      }}
-                    />
+                    >
+                      {s.monthly_in_out.toLocaleString()}
+                    </span>
                   </div>
                 </TableCell>
                 <TableCell

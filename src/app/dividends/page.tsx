@@ -101,8 +101,8 @@ export default function DividendsPage() {
 
       <Card className="border-border shadow-xl shadow-muted/50 rounded-2xl overflow-hidden mb-8 bg-card">
         <CardContent className="p-6">
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-4 items-end">
-            <div className="space-y-2">
+          <div className="flex flex-wrap md:flex-nowrap gap-4 items-end">
+            <div className="flex-1 min-w-[120px] space-y-2">
               <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-tighter ml-1">
                 입금일자
               </label>
@@ -115,7 +115,7 @@ export default function DividendsPage() {
                 }
               />
             </div>
-            <div className="space-y-2">
+            <div className="flex-[1.5] min-w-[140px] space-y-2">
               <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-tighter ml-1">
                 티커
               </label>
@@ -125,20 +125,22 @@ export default function DividendsPage() {
                   setFormData((p) => ({ ...p, ticker: val }))
                 }
               >
-                <SelectTrigger className="h-10 rounded-lg border-border font-bold text-indigo-500">
+                <SelectTrigger className="h-10 rounded-lg border-border font-bold text-indigo-500 w-full overflow-hidden">
                   <SelectValue placeholder="티커" />
                 </SelectTrigger>
                 <SelectContent>
                   {categories?.stocks.map((s) => (
                     <SelectItem key={s.ticker} value={s.ticker}>
-                      {s.ticker}
-                      {s.name ? ` (${s.name})` : ""}
+                      <span className="truncate">
+                        {s.ticker}
+                        {s.name ? ` (${s.name})` : ""}
+                      </span>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
+            <div className="flex-1 min-w-[120px] space-y-2">
               <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-tighter ml-1">
                 증권사
               </label>
@@ -148,7 +150,7 @@ export default function DividendsPage() {
                   setFormData((p) => ({ ...p, securities: val }))
                 }
               >
-                <SelectTrigger className="h-10 rounded-lg border-border">
+                <SelectTrigger className="h-10 rounded-lg border-border w-full">
                   <SelectValue placeholder="증권사" />
                 </SelectTrigger>
                 <SelectContent>
@@ -160,7 +162,7 @@ export default function DividendsPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
+            <div className="flex-1 min-w-[120px] space-y-2">
               <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-tighter ml-1">
                 배당금
               </label>
@@ -169,14 +171,20 @@ export default function DividendsPage() {
                 value={formData.amount}
                 onInput={(e) => {
                   const raw = e.currentTarget.value.replace(/[^0-9.]/g, "");
-                  e.currentTarget.value = formatWithCommas(raw);
+                  // Allow typing decimal points
+                  e.currentTarget.value = raw;
                 }}
                 onChange={(e) =>
                   setFormData((p) => ({ ...p, amount: e.target.value }))
                 }
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    addDividend();
+                  }
+                }}
               />
             </div>
-            <div className="space-y-2">
+            <div className="flex-1 min-w-[100px] space-y-2">
               <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-tighter ml-1">
                 통화
               </label>
@@ -186,18 +194,18 @@ export default function DividendsPage() {
                   setFormData((p) => ({ ...p, currency: val }))
                 }
               >
-                <SelectTrigger className="h-10 rounded-lg border-border">
+                <SelectTrigger className="h-10 rounded-lg border-border w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="USD">USD ($)</SelectItem>
-                  <SelectItem value="KRW">KRW ()</SelectItem>
+                  <SelectItem value="KRW">KRW (₩)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <Button
               onClick={addDividend}
-              className="h-10 bg-emerald-600 hover:bg-emerald-700 font-bold text-white"
+              className="h-10 bg-emerald-600 hover:bg-emerald-700 font-bold text-white px-6 shrink-0"
             >
               <Plus className="w-4 h-4" /> 추가
             </Button>
@@ -268,7 +276,14 @@ export default function DividendsPage() {
                     defaultValue={formatWithCommas(d.amount)}
                     onBlur={(e) => {
                       const val = parseNumber(e.target.value);
-                      if (!isNaN(val)) updateDividend(d.id, "amount", val);
+                      if (!isNaN(val)) {
+                        updateDividend(d.id, "amount", val);
+                        e.target.value = formatWithCommas(val);
+                      }
+                    }}
+                    onInput={(e) => {
+                      const raw = e.currentTarget.value.replace(/[^0-9.]/g, "");
+                      e.currentTarget.value = raw;
                     }}
                   />
                 </TableCell>
